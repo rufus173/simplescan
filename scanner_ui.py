@@ -36,13 +36,42 @@ class PDFModeUI():
 	def __init__(self,parent_widget,scanner):
 		self.scanner = scanner
 		self.parent_widget = parent_widget
+		self.scanned_images_list = []
+		self.selected_page = None
+
 		self.controls_frame = tkinter.LabelFrame(parent_widget,text="Controls")
-		self.controls_frame.grid(row=0,column=0)
+		self.controls_frame.grid(row=0,column=0,columnspan=2)
 		self.rescan_button = tkinter.Button(self.controls_frame,text="Rescan")
 		self.rescan_button.grid(row=0,column=0)
+		self.new_page_button = tkinter.Button(self.controls_frame,text="New page",command=self.new_page)
+		self.new_page_button.grid(row=0,column=1)
+
+		self.page_listbox = tkinter.Listbox(parent_widget,selectmode=tkinter.SINGLE)
+		self.page_listbox.grid(row=1,column=0)
+		self.page_listbox.bind("<<ListboxSelect>>",self.page_listbox_item_selected)
+		
+		self.preview_label = tkinter.Label(parent_widget,text="Press new page to start")
+		self.preview_label.grid(row=1,column=1)
+	def page_listbox_item_selected(self,event):
+		self.selected_page = event.widget.curselection()[0]
+		self.update_preview()
+	def update_preview(self):
+		thumbnail = self.scanned_images_list[self.selected_page].copy()
+		thumbnail.thumbnail((800,800))
+		self.current_preview_image = ImageTk.PhotoImage(thumbnail)
+		self.preview_label.configure(image=self.current_preview_image)
+	def update_page_listbox(self):
+		self.page_listbox.delete(0,tkinter.END)
+		self.page_listbox.insert(0,*[f"Page {i+1}" for i in range(len(self.scanned_images_list))])
+	def new_page(self):
+		self.scanned_images_list.append(self.scanner.scan())
+		self.update_page_listbox()
+		self.page_listbox.activate(tkinter.END)
+		self.selected_page = len(self.scanned_images_list)-1
+		self.update_preview()
 class SingleImageModeUI():
 	mode_name = "Single image"
-	thumbnail_size = (565,800)
+	thumbnail_size = (800,800)
 	def __init__(self,parent_widget,scanner):
 		self.scanner = scanner
 		self.currently_scanned_image: Image = None
@@ -87,7 +116,6 @@ class ScannerUI():
 		self.scan_mode_ui = None
 		self.root.mainloop()
 	def select_mode(self,mode_ui):
-		print(mode_ui.mode_name)
 		if self.scan_mode_ui != None:
 			[slave.destroy() for slave in self.scan_frame.grid_slaves()]
 			del self.scan_mode_ui

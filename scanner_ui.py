@@ -40,20 +40,34 @@ class PDFModeUI():
 		self.selected_page = None
 
 		self.controls_frame = tkinter.LabelFrame(parent_widget,text="Controls")
-		self.controls_frame.grid(row=0,column=0,columnspan=2)
-		self.rescan_button = tkinter.Button(self.controls_frame,text="Rescan")
+		self.controls_frame.grid(row=0,column=0,columnspan=2,sticky=tkinter.W)
+		self.rescan_button = tkinter.Button(self.controls_frame,text="Rescan",command=self.rescan)
 		self.rescan_button.grid(row=0,column=0)
 		self.new_page_button = tkinter.Button(self.controls_frame,text="New page",command=self.new_page)
 		self.new_page_button.grid(row=0,column=1)
 		self.save_button = tkinter.Button(self.controls_frame,text="Save",command=self.save)
 		self.save_button.grid(row=0,column=2)
+		self.delete_page_button = tkinter.Button(self.controls_frame,text="Delete page",command=self.delete_page)
+		self.delete_page_button.grid(row=0,column=3)
 
 		self.page_listbox = tkinter.Listbox(parent_widget,selectmode=tkinter.SINGLE)
 		self.page_listbox.grid(row=1,column=0,sticky=tkinter.NSEW)
 		self.page_listbox.bind("<<ListboxSelect>>",self.page_listbox_item_selected)
+		[self.controls_frame.columnconfigure(0,weight=1) for i in range(4)]
 		
 		self.preview_label = tkinter.Label(parent_widget,text="Press new page to start")
-		self.preview_label.grid(row=1,column=1)
+		self.preview_label.grid(row=1,column=1,sticky=tkinter.NSEW)
+	def rescan(self):
+		if len(self.scanned_images_list) < self.selected_page:
+			MessageDialogue("No pages to rescan","Error")
+			return
+		self.scanned_images_list[self.selected_page] = self.scanner.scan()
+	def delete_page(self):
+		if len(self.scanned_images_list) < self.selected_page:
+			MessageDialogue("selected page out of range","Error")
+			return
+		self.scanned_images_list.pop(self.selected_page)
+		self.update_page_listbox()
 	def page_listbox_item_selected(self,event):
 		self.selected_page = event.widget.curselection()[0]
 		self.update_preview()

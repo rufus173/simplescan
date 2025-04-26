@@ -45,9 +45,11 @@ class PDFModeUI():
 		self.rescan_button.grid(row=0,column=0)
 		self.new_page_button = tkinter.Button(self.controls_frame,text="New page",command=self.new_page)
 		self.new_page_button.grid(row=0,column=1)
+		self.save_button = tkinter.Button(self.controls_frame,text="Save",command=self.save)
+		self.save_button.grid(row=0,column=2)
 
 		self.page_listbox = tkinter.Listbox(parent_widget,selectmode=tkinter.SINGLE)
-		self.page_listbox.grid(row=1,column=0)
+		self.page_listbox.grid(row=1,column=0,sticky=tkinter.NSEW)
 		self.page_listbox.bind("<<ListboxSelect>>",self.page_listbox_item_selected)
 		
 		self.preview_label = tkinter.Label(parent_widget,text="Press new page to start")
@@ -69,6 +71,12 @@ class PDFModeUI():
 		self.page_listbox.activate(tkinter.END)
 		self.selected_page = len(self.scanned_images_list)-1
 		self.update_preview()
+	def save(self):
+		if len(self.scanned_images_list) < 1:
+			MessageDialogue("You need at least 1 scan to save","Error")
+			return
+		path = tkinter.filedialog.asksaveasfilename(defaultextension="pdf")
+		self.scanned_images_list[0].save(path,"PDF",resolution=100.0,save_all=True,append_images=self.scanned_images_list[1:])
 class SingleImageModeUI():
 	mode_name = "Single image"
 	thumbnail_size = (800,800)
@@ -92,7 +100,7 @@ class SingleImageModeUI():
 		if self.currently_scanned_image == None:
 			MessageDialogue("Please scan an image first","error")
 			return
-		filename_to_save_in = tkinter.filedialog.asksaveasfilename()
+		filename_to_save_in = tkinter.filedialog.asksaveasfilename(defaultextension="png")
 		self.currently_scanned_image.save(filename_to_save_in)
 class ScannerUI():
 	scan_mode_uis = [PDFModeUI,SingleImageModeUI]
@@ -101,7 +109,7 @@ class ScannerUI():
 		self.scanner = scanner
 		#root window
 		self.root = tkinter.Tk()
-		self.root.title("simplescan v0.5")
+		self.root.title("simplescan v0.9")
 		#scanner mode
 		self.mode_select_frame = tkinter.LabelFrame(self.root,text="Select mode")
 		self.mode_select_frame.grid(row=0,column=0)

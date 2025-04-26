@@ -1,6 +1,10 @@
 
 # First time install
 
+## Requirements
+
+ - `libsane-dev`
+
 When this is first installed, it needs to be configured with `./configure.sh`
 
 # How to use

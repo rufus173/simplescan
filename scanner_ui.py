@@ -1,4 +1,5 @@
 import tkinter
+from functools import partial
 import tkinter.filedialog
 from PIL import Image, ImageTk
 class ListboxDialogue():
@@ -30,26 +31,17 @@ class MessageDialogue():
 		self.ok_button = tkinter.Button(self.root,text="Ok",command=lambda : self.root.destroy())
 		self.ok_button.grid(row=1,column=0)
 		self.root.mainloop()
-class ScannerUI():
-	def __init__(self,scanner):
-		#scanner
+class PDFModeUI():
+	mode_name = "Multi image pdf"
+	def __init__(self,parent_widget,scanner):
 		self.scanner = scanner
-		#root window
-		self.root = tkinter.Tk()
-		self.root.title("simplescan v0.5")
-		#scanner mode
-		self.mode_select_frame = tkinter.LabelFrame(self.root,text="Select mode")
-		self.mode_select_frame.grid(row=0,column=0)
-		self.single_image_mode_button = tkinter.Button(self.mode_select_frame,text="Single image",command=lambda : self.select_mode(SingleImageModeUI))
-		self.single_image_mode_button.grid(row=0,column=0)
-		#scanner frame where the ui for scanning shows up
-		self.scan_frame = tkinter.LabelFrame(self.root,text="Scaner")
-		self.scan_frame.grid(row=1,column=0)
-		self.select_mode(SingleImageModeUI) #select default mode as single image
-		self.root.mainloop()
-	def select_mode(self,mode_ui):
-		self.scan_mode_ui = mode_ui(self.scan_frame,self.scanner)
+		self.parent_widget = parent_widget
+		self.controls_frame = tkinter.LabelFrame(parent_widget,text="Controls")
+		self.controls_frame.grid(row=0,column=0)
+		self.rescan_button = tkinter.Button(self.controls_frame,text="Rescan")
+		self.rescan_button.grid(row=0,column=0)
 class SingleImageModeUI():
+	mode_name = "Single image"
 	thumbnail_size = (565,800)
 	def __init__(self,parent_widget,scanner):
 		self.scanner = scanner
@@ -73,3 +65,30 @@ class SingleImageModeUI():
 			return
 		filename_to_save_in = tkinter.filedialog.asksaveasfilename()
 		self.currently_scanned_image.save(filename_to_save_in)
+class ScannerUI():
+	scan_mode_uis = [PDFModeUI,SingleImageModeUI]
+	def __init__(self,scanner):
+		#scanner
+		self.scanner = scanner
+		#root window
+		self.root = tkinter.Tk()
+		self.root.title("simplescan v0.5")
+		#scanner mode
+		self.mode_select_frame = tkinter.LabelFrame(self.root,text="Select mode")
+		self.mode_select_frame.grid(row=0,column=0)
+		mode_buttons = [
+			tkinter.Button(self.mode_select_frame,text=mode_ui.mode_name,command=partial(lambda ui: self.select_mode(ui),mode_ui))
+			for mode_ui in self.scan_mode_uis
+		]
+		[mode_buttons[i].grid(row=0,column=i) for i in range(len(self.scan_mode_uis))]
+		#scanner frame where the ui for scanning shows up
+		self.scan_frame = tkinter.LabelFrame(self.root,text="Scaner")
+		self.scan_frame.grid(row=1,column=0)
+		self.scan_mode_ui = None
+		self.root.mainloop()
+	def select_mode(self,mode_ui):
+		print(mode_ui.mode_name)
+		if self.scan_mode_ui != None:
+			[slave.destroy() for slave in self.scan_frame.grid_slaves()]
+			del self.scan_mode_ui
+		self.scan_mode_ui = mode_ui(self.scan_frame,self.scanner)

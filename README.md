@@ -4,6 +4,10 @@
 ## Requirements
 
  - `libsane-dev`
+ - `gcc`
+ - `python3-pip`
+ - `python3-venv`
+ - `python3`
 
 When this is first installed, it needs to be configured with `./configure.sh`
 

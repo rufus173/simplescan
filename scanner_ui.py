@@ -2,9 +2,13 @@ import tkinter
 from functools import partial
 import tkinter.filedialog
 from PIL import Image, ImageTk
+import os.path
 class ListboxDialogue():
 	def __init__(self,list_to_select_from,title="Pick an option"):
 		self.root = tkinter.Tk()
+		path = os.path.join(os.path.dirname(__file__),"logo.png")
+		icon = tkinter.PhotoImage(file=path)
+		self.root.iconphoto(True,icon)
 		self.root.title(title)
 		self.listbox = tkinter.Listbox(self.root,selectmode=tkinter.SINGLE)
 		self.listbox.insert(0,*list_to_select_from)
@@ -25,6 +29,10 @@ class ListboxDialogue():
 class MessageDialogue():
 	def __init__(self,message,title):
 		self.root = tkinter.Tk()
+		path = os.path.join(os.path.dirname(__file__),"logo.png")
+		icon = tkinter.PhotoImage(file=path)
+		self.root.iconphoto(True,icon)
+		self.root.iconphoto(True,icon)
 		self.root.title(title)
 		self.message_label = tkinter.Label(self.root,text=message)
 		self.message_label.grid(row=0,column=0)
@@ -123,7 +131,11 @@ class ScannerUI():
 		self.scanner = scanner
 		#root window
 		self.root = tkinter.Tk()
-		self.root.title("simplescan v0.9")
+		path = os.path.join(os.path.dirname(__file__),"logo.png")
+		icon = tkinter.PhotoImage(file=path)
+		self.root.iconphoto(True,icon)
+		self.root.title("simplescan v1.0")
+		self.root.iconphoto(True,icon)
 		#scanner mode
 		self.mode_select_frame = tkinter.LabelFrame(self.root,text="Select mode")
 		self.mode_select_frame.grid(row=0,column=0)

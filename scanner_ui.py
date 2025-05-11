@@ -2,6 +2,7 @@ import tkinter
 from functools import partial
 import tkinter.filedialog
 from PIL import Image, ImageTk
+from pathlib import Path
 import os.path
 class ListboxDialogue():
 	def __init__(self,list_to_select_from,title="Pick an option"):
@@ -97,7 +98,7 @@ class PDFModeUI():
 		if len(self.scanned_images_list) < 1:
 			MessageDialogue("You need at least 1 scan to save","Error")
 			return
-		path = tkinter.filedialog.asksaveasfilename(defaultextension="pdf")
+		path = tkinter.filedialog.asksaveasfilename(defaultextension=".pdf")
 		self.scanned_images_list[0].save(path,"PDF",resolution=100.0,save_all=True,append_images=self.scanned_images_list[1:])
 class SingleImageModeUI():
 	mode_name = "Single image"
@@ -122,7 +123,8 @@ class SingleImageModeUI():
 		if self.currently_scanned_image == None:
 			MessageDialogue("Please scan an image first","error")
 			return
-		filename_to_save_in = tkinter.filedialog.asksaveasfilename(defaultextension="png")
+		filename_to_save_in = tkinter.filedialog.asksaveasfilename(defaultextension=".png")
+
 		self.currently_scanned_image.save(filename_to_save_in)
 class ScannerUI():
 	scan_mode_uis = [PDFModeUI,SingleImageModeUI]
